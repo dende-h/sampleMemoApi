@@ -11,32 +11,24 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import environ                  # 追加
-import datetime
+import environ                  # environライブラリをインポートして環境変数を管理しやすくします。
+import datetime                # datetimeモジュールをインポートして時間に関するオブジェクトを使用します。
  
-env = environ.Env()             # 追加
-env.read_env('.env')            # 追加
-
-
+env = environ.Env()            # 環境変数オブジェクトを作成します。
+env.read_env('.env')           # プロジェクトのルートにある.envファイルから環境変数を読み込みます。
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')  # 修正
+SECRET_KEY = env('SECRET_KEY')  # .envファイルからシークレットキーを読み込みます。
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -78,10 +70,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sampleMemoApi.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -89,10 +78,7 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -108,45 +94,35 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'ja'
-
 TIME_ZONE = 'Asia/Tokyo'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'memos.User'
+AUTH_USER_MODEL = 'memos.User'  # カスタムユーザーモデルを使用するための設定
 
 # Django REST Frameworkの設定
 REST_FRAMEWORK = {
-    # 認証クラスを指定します。
+    # JWTを使用した認証方式を設定します。
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # ここに他の設定を追加できます。
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=3),         # アクセストークンの有効期限
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),           # リフレッシュトークンの有効期限
-    # その他の設定...
+    # アクセストークンとリフレッシュトークンの有効期限を設定します。
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=3),    # アクセストークンは3日間有効です。
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),    # リフレッシュトークンは7日間有効です。
+    # その他のJWT設定をここに追加できます。
 }
+
 
 # AUTHENTICATION_BACKENDS = [
 #     # ...他のバックエンドがあればここに追加...

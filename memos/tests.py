@@ -1,16 +1,14 @@
-from django.test import TestCase
-
 # Create your tests here.
 # tests.py
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import User
+from django.contrib.auth import get_user_model
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.urls import reverse
-from rest_framework.test import APITestCase
-from rest_framework import status
-from .models import User
+User = get_user_model()
 
 class UserRegistrationTestCase(APITestCase):
     # ユーザー登録のテストケースを定義します。
@@ -62,3 +60,49 @@ class SecureViewTestCase(APITestCase):
         response = self.client.get(self.secure_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class MemoAPITests(APITestCase):
+
+    def setUp(self):
+        # テストユーザーの作成
+        self.user = User.objects.create_user(username='test', email='test@example.com', password='testpassword')
+        # JWTトークンの取得
+        refresh = RefreshToken.for_user(self.user)
+        self.token = refresh.access_token
+        # 認証情報を持つクライアントの設定
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        # メモの作成
+        self.memo = self.user.memo_set.create(title='Test Memo', content='Test Content')
+
+    def test_get_memos(self):
+        # メモリスト取得のテスト
+        url = reverse('memo-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_memo(self):
+        # メモ作成のテスト
+        url = reverse('memo-list')
+        data = {'title': 'New Memo', 'content': 'Content of new memo'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_memo_detail(self):
+        # メモ詳細取得のテスト
+        url = reverse('memo-detail', kwargs={'pk': self.memo.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_memo(self):
+        # メモ更新のテスト
+        url = reverse('memo-detail', kwargs={'pk': self.memo.pk})
+        data = {'title': 'Updated Memo', 'content': 'Updated content'}
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_memo(self):
+        # メモ削除のテスト
+        url = reverse('memo-detail', kwargs={'pk': self.memo.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin  # Djangoの管理サイト機能をインポート
 from django.urls import path  # URLパターンを指定するための関数pathをインポート
-from memos.views import UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
+from memos.views import MemoDetailView, MemoView, UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
 # from memos.admin import custom_admin_site
 
 from rest_framework_simplejwt.views import (
@@ -39,5 +39,8 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('secure-view/', MySecureView.as_view(), name='secure-view'),
+
+    path('api/memos/', MemoView.as_view(), name='memo-list'),  # メモリストのためのエンドポイント
+    path('api/memos/<int:pk>/', MemoDetailView.as_view(), name='memo-detail'),  # 個別のメモを扱うためのエンドポイント
 ]
 

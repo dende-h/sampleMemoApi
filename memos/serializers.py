@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import Memo
 
 # Djangoのデフォルトユーザーモデルを動的に取得します。
 # これにより、カスタムユーザーモデルが設定されていても、このコードを変更せずに使用できます。
@@ -33,3 +34,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
         # 作成されたユーザーオブジェクトを返します。
         return user
+
+class MemoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Memo
+        fields = ['id', 'title', 'content', 'complete_flag', 'created_at']
+        read_only_fields = ('user',)  # ユーザーはリクエストから直接セットされません
