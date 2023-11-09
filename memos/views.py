@@ -7,6 +7,9 @@ from django.http import Http404, HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from .models import Memo
 from .serializers import MemoSerializer
+from drf_spectacular.utils import extend_schema
+
+
 
 
 
@@ -51,7 +54,11 @@ class MemoView(APIView):
         memos = Memo.objects.filter(user=request.user)
         serializer = MemoSerializer(memos, many=True)
         return Response(serializer.data)
-
+    
+    @extend_schema(
+        request=MemoSerializer,
+        responses={201: MemoSerializer}
+    )
     def post(self, request):
         # リクエストデータにユーザー情報を追加してシリアライザに渡す
         serializer = MemoSerializer(data=request.data)
@@ -73,7 +80,11 @@ class MemoDetailView(APIView):
         memo = self.get_object(pk, request.user)
         serializer = MemoSerializer(memo)
         return Response(serializer.data)
-
+    
+    @extend_schema(
+        request=MemoSerializer,
+        responses={200: MemoSerializer}
+    )
     def put(self, request, pk):
         memo = self.get_object(pk, request.user)
         serializer = MemoSerializer(memo, data=request.data)

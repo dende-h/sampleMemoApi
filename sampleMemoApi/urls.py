@@ -18,11 +18,12 @@ from django.contrib import admin  # Djangoの管理サイト機能をインポ�
 from django.urls import path  # URLパターンを指定するための関数pathをインポート
 from memos.views import MemoDetailView, MemoView, UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
 # from memos.admin import custom_admin_site
-
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
 
 # URLパターンを定義するリスト
 urlpatterns = [
@@ -42,5 +43,8 @@ urlpatterns = [
 
     path('api/memos/', MemoView.as_view(), name='memo-list'),  # メモリストのためのエンドポイント
     path('api/memos/<int:pk>/', MemoDetailView.as_view(), name='memo-detail'),  # 個別のメモを扱うためのエンドポイント
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
