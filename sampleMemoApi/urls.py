@@ -14,15 +14,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from memos.views import UserRegistrationAPIView ,home
+from django.contrib import admin  # Djangoの管理サイト機能をインポート
+from django.urls import path  # URLパターンを指定するための関数pathをインポート
+from memos.views import UserRegistrationAPIView, home  # memosアプリのビューをインポート
 
-
+# URLパターンを定義するリスト
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('register/', UserRegistrationAPIView .as_view(), name='user-register'),
+    # admin/ にアクセスがあったときにDjangoの管理サイトを表示する
+    path('admin/', admin.site.urls),  
+    
+    # register/ にアクセスがあったときにUserRegistrationAPIViewを使用してユーザー登録処理を行う
+    # .as_view()はクラスベースのビューを関数ベースのビューとして呼び出すために使用する
+    path('register/', UserRegistrationAPIView.as_view(), name='user-register'),
+    
+    # ルートURL（ドメインの直下、例: http://127.0.0.1:8000/）にアクセスがあったときにhomeビューを表示する
     path('', home, name='home'), 
 ]
-
 
