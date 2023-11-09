@@ -16,13 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin  # Djangoの管理サイト機能をインポート
 from django.urls import path  # URLパターンを指定するための関数pathをインポート
-from memos.views import MemoDetailView, MemoView, UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
+from memos.views import MemoDetailView, MemoView, UserRegistrationAPIView, home # memosアプリのビューをインポート
 # from memos.admin import custom_admin_site
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView,SpectacularYAMLAPIView
 
 
 # URLパターンを定義するリスト
@@ -37,14 +37,14 @@ urlpatterns = [
     # ルートURL（ドメインの直下、例: http://127.0.0.1:8000/）にアクセスがあったときにhomeビューを表示する
     path('', home, name='home'), 
 
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('secure-view/', MySecureView.as_view(), name='secure-view'),
-
+    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
     path('api/memos/', MemoView.as_view(), name='memo-list'),  # メモリストのためのエンドポイント
     path('api/memos/<int:pk>/', MemoDetailView.as_view(), name='memo-detail'),  # 個別のメモを扱うためのエンドポイント
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 

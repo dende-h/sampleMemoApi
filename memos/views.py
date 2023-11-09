@@ -38,17 +38,14 @@ def home(request):
     return HttpResponse("Welcome to my site!")
 
 
-class MySecureView(APIView):
-    # 認証済みのユーザーにのみアクセスを許可
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        # ここにビジネスロジックを実装
-        return Response({"message": "Hello, world!"})
 
 class MemoView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        request=MemoSerializer,
+        responses={201: MemoSerializer}
+    )
     def get(self, request):
         # 認証されたユーザーのメモを取得
         memos = Memo.objects.filter(user=request.user)
@@ -69,13 +66,19 @@ class MemoView(APIView):
 
 class MemoDetailView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        request=MemoSerializer,
+        responses={200: MemoSerializer}
+    )
     def get_object(self, pk, user):
         try:
             return Memo.objects.get(pk=pk, user=user)
         except Memo.DoesNotExist:
             raise Http404
-
+    @extend_schema(
+        request=MemoSerializer,
+        responses={200: MemoSerializer}
+    )
     def get(self, request, pk):
         memo = self.get_object(pk, request.user)
         serializer = MemoSerializer(memo)
@@ -92,7 +95,10 @@ class MemoDetailView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    @extend_schema(
+        request=MemoSerializer,
+        responses={200: MemoSerializer}
+    )
     def delete(self, request, pk):
         memo = self.get_object(pk, request.user)
         memo.delete()

@@ -39,7 +39,7 @@ class SecureViewTestCase(APITestCase):
         # テストユーザーを作成
         self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='testpassword')
         self.token_obtain_pair_url = reverse('token_obtain_pair')
-        self.secure_url = reverse('secure-view')  # MySecureViewのURL名を'secure-view'と仮定
+        self.secure_url = reverse('memo-list')  
 
     def test_secure_view_unauthorized(self):
         # 認証されていないリクエストが401 Unauthorizedを返すことを確認
