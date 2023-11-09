@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import environ                  # 追加
+import datetime
  
 env = environ.Env()             # 追加
 env.read_env('.env')            # 追加
@@ -131,3 +132,22 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'memos.User'
+
+# Django REST Frameworkの設定
+REST_FRAMEWORK = {
+    # 認証クラスを指定します。
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # ここに他の設定を追加できます。
+}
+
+JWT_AUTH = {
+    # JWTトークンが返されるときに、追加の情報を含めるためのカスタム関数のパス
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'sampleMemoApi.memos.utils.my_jwt_response_handler',
+    # トークンのリフレッシュを許可するかどうか
+    'JWT_ALLOW_REFRESH': True,
+    # トークンのリフレッシュの有効期限を設定
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    # ここに他のJWTに関する設定を追加できます。
+}

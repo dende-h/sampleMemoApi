@@ -16,7 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from memos.views import UserRegistrationAPIView ,home
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('register/', UserRegistrationAPIView .as_view(), name='user-register'),
+    path('', home, name='home'), 
 ]
+
+
