@@ -61,6 +61,4 @@ class SecureViewTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['access']}")
         response = self.client.get(self.secure_url)
 
-        print(response.data)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -142,14 +142,10 @@ REST_FRAMEWORK = {
     # ここに他の設定を追加できます。
 }
 
-JWT_AUTH = {
-    # JWTトークンが返されるときに、追加の情報を含めるためのカスタム関数のパス
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'sampleMemoApi.memos.utils.my_jwt_response_handler',
-    # トークンのリフレッシュを許可するかどうか
-    'JWT_ALLOW_REFRESH': True,
-    # トークンのリフレッシュの有効期限を設定
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-    # ここに他のJWTに関する設定を追加できます。
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=3),         # アクセストークンの有効期限
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),           # リフレッシュトークンの有効期限
+    # その他の設定...
 }
 
 # AUTHENTICATION_BACKENDS = [
