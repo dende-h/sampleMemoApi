@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin  # Djangoの管理サイト機能をインポート
 from django.urls import path  # URLパターンを指定するための関数pathをインポート
 from memos.views import UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
+# from memos.admin import custom_admin_site
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -26,7 +27,7 @@ from rest_framework_simplejwt.views import (
 # URLパターンを定義するリスト
 urlpatterns = [
     # admin/ にアクセスがあったときにDjangoの管理サイトを表示する
-    path('admin/', admin.site.urls),  
+    path('admin/', admin.site.urls), 
     
     # register/ にアクセスがあったときにUserRegistrationAPIViewを使用してユーザー登録処理を行う
     # .as_view()はクラスベースのビューを関数ベースのビューとして呼び出すために使用する

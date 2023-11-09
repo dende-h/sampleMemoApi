@@ -51,7 +51,7 @@ class SecureViewTestCase(APITestCase):
     def test_secure_view_with_token(self):
         # テストユーザーでログインしてトークンを取得
         response = self.client.post(self.token_obtain_pair_url, {
-            'username': 'testuser@example.com',
+            'email': 'testuser@example.com',
             'password': 'testpassword',
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)

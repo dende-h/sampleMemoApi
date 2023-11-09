@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 # カスタムユーザーマネージャークラス
 class CustomUserManager(BaseUserManager):
     # 通常のユーザーを作成するためのメソッド
-    def create_user(self, username, email, password=None):
+    def create_user(self, email, username, password=None):
         if not email:
             raise ValueError('The given email must be set')
         # ユーザーモデルのインスタンスを作成
@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
         return user
 
     # スーパーユーザーを作成するためのメソッド
-    def create_superuser(self, username, email, password=None):
+    def create_superuser(self, email, username, password=None):
         # 上記のcreate_userを使ってユーザーを作成
         user = self.create_user(
             username=username,
@@ -36,8 +36,8 @@ class CustomUserManager(BaseUserManager):
 # カスタムユーザーモデルクラス
 class User(AbstractBaseUser):
     # ユーザー名とメールアドレスは一意でなければならない
-    username = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(_('email address'), unique=True)
+    username = models.CharField(max_length=254, unique=True)
+    email = models.EmailField(_('email address'), max_length=254,unique=True)
     # ユーザーが管理画面にアクセスできるかどうか
     is_staff = models.BooleanField(default=False)
     # ユーザーがスーパーユーザーかどうか
@@ -47,9 +47,9 @@ class User(AbstractBaseUser):
     objects = CustomUserManager()
 
     # ユーザー名をユーザーのユニークな識別子として使用
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     # スーパーユーザー作成時にメールアドレスの入力を要求
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['username']
 
     # オブジェクトを文字列で表現したときの挙動を定義
     def __str__(self):

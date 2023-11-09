@@ -152,7 +152,7 @@ JWT_AUTH = {
     # ここに他のJWTに関する設定を追加できます。
 }
 
-AUTHENTICATION_BACKENDS = [
-    # ...他のバックエンドがあればここに追加...
-    'memos.authentication.EmailBackend',  # EmailBackendクラスへのパスを追加
-]
+# AUTHENTICATION_BACKENDS = [
+#     # ...他のバックエンドがあればここに追加...
+#     'memos.authentication.EmailBackend',  # EmailBackendクラスへのパスを追加
+# ]

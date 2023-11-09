@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer
 from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+
+
 
 # UserRegistrationAPIViewクラスはAPIViewクラスを継承しており、
 # RESTフレームワークの基本的なAPIビュー機能を利用することができます。
