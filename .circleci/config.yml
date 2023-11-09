@@ -4,8 +4,6 @@ jobs:
     docker:
       # CircleCIのDocker HubからPythonイメージを指定
       - image: cimg/python:3.9
-    environment:
-      SECRET_KEY: ${SECRET_KEY}
     steps:
       - checkout
       # 依存関係をインストール
