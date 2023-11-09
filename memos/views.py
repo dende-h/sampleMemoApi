@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer
 from django.http import HttpResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # UserRegistrationAPIViewクラスはAPIViewクラスを継承しており、
 # RESTフレームワークの基本的なAPIビュー機能を利用することができます。
@@ -28,3 +31,12 @@ class UserRegistrationAPIView(APIView):
 def home(request):
     # リクエストに対して、"Welcome to my site!"というメッセージが含まれたHTTPレスポンスを返します。
     return HttpResponse("Welcome to my site!")
+
+
+class MySecureView(APIView):
+    # 認証済みのユーザーにのみアクセスを許可
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # ここにビジネスロジックを実装
+        return Response({"message": "Hello, world!"})

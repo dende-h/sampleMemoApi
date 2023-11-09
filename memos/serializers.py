@@ -19,15 +19,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Userモデルをシリアライザーに関連付けます。
         model = User
         # クライアントに公開するフィールドを指定します。
-        # ここでは'user_name'、'email'、および'password'フィールドを含めます。
-        fields = ('user_name', 'email', 'password')
+        # ここでは'username'、'email'、および'password'フィールドを含めます。
+        fields = ('username', 'email', 'password')
 
     # createメソッドをオーバーライドし、validateされたデータからユーザーオブジェクトを作成します。
     def create(self, validated_data):
         # Userモデルのcreate_userメソッドを使用して新しいユーザーを作成します。
         # これにより、パスワードは適切にハッシュ化されます。
         user = User.objects.create_user(
-            user_name=validated_data['user_name'],
+            username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )

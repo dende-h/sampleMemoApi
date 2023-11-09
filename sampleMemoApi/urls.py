@@ -16,7 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin  # Djangoの管理サイト機能をインポート
 from django.urls import path  # URLパターンを指定するための関数pathをインポート
-from memos.views import UserRegistrationAPIView, home  # memosアプリのビューをインポート
+from memos.views import UserRegistrationAPIView, home ,MySecureView # memosアプリのビューをインポート
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 # URLパターンを定義するリスト
 urlpatterns = [
@@ -29,5 +34,9 @@ urlpatterns = [
     
     # ルートURL（ドメインの直下、例: http://127.0.0.1:8000/）にアクセスがあったときにhomeビューを表示する
     path('', home, name='home'), 
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('secure-view/', MySecureView.as_view(), name='secure-view'),
 ]
 

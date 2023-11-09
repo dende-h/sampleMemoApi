@@ -17,7 +17,7 @@ def my_jwt_response_handler(token, user=None, request=None):
         # ユーザー情報を'user'キーに格納した辞書として返します。
         'user': {
             'id': user.id,              # ユーザーID
-            'username': user.user_name, # ユーザー名
+            'username': user.username, # ユーザー名
             'email': user.email,        # メールアドレス
         }
     }
