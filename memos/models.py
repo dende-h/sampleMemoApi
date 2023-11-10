@@ -37,7 +37,7 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser):
     # ユーザー名とメールアドレスは一意でなければならない
     username = models.CharField(max_length=254, unique=True)
-    email = models.EmailField(_('email address'), max_length=254,unique=True)
+    email = models.EmailField(max_length=254,unique=True)
     # ユーザーが管理画面にアクセスできるかどうか
     is_staff = models.BooleanField(default=False)
     # ユーザーがスーパーユーザーかどうか

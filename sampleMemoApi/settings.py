@@ -125,6 +125,34 @@ SIMPLE_JWT = {
     # その他のJWT設定をここに追加できます。
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': '簡易メモアプリAPI',
+    'DESCRIPTION': '簡易メモアプリのユーザー登録、認証とメモのCRUD処理を実行するためのAPIです',
+    'VERSION': '1.0.0',
+    # Optional: 'TERMS_OF_SERVICE', 'CONTACT', 'LICENSE' なども含めることができます
+    'SERVERS': [
+        {
+            'url': 'https://api.example.com/',
+            'description': 'Production server',
+        },
+
+    ],
+    'SECURITY': [
+        {
+            "TokenAuth": []
+        }
+    ],
+    'COMPONENTS': {
+        'securitySchemes': {
+            "TokenAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+    
+}
 
 # AUTHENTICATION_BACKENDS = [
 #     # ...他のバックエンドがあればここに追加...

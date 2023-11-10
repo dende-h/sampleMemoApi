@@ -18,6 +18,10 @@ from drf_spectacular.utils import extend_schema
 class UserRegistrationAPIView(APIView):
     # POSTメソッドのリクエストを処理するためのメソッドを定義しています。
     # ユーザー登録のためのデータがリクエストとして送られてくることを想定しています。
+    @extend_schema(
+        request=UserRegistrationSerializer,
+        responses={201: UserRegistrationSerializer}
+    )
     def post(self, request, *args, **kwargs):
         # リクエストデータをUserRegistrationSerializerに渡してバリデーションを行います。
         serializer = UserRegistrationSerializer(data=request.data)
