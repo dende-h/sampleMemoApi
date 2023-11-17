@@ -115,7 +115,7 @@ workflows:
   # devブランチでdestroyパラメータがfalseかつ、terraformかCircleCIの設定ファイルに変更が合った時に走るワークフロー
   terraform-plan:
     when: 
-      - not: <<pipeline.parameters.run-terraform-destroy>>
+      not: <<pipeline.parameters.run-terraform-destroy>>
     jobs:
       - plan
 
