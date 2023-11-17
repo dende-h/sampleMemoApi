@@ -1,0 +1,72 @@
+---
+- name: Setup Django application environment
+  hosts: EC2server
+  become: true
+  tasks:
+  # pythonとpipとgitをインストールする
+    - name: Install Python and pip
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - git 
+        state: present
+        update_cache: yes
+
+  # プロジェクトをCloneする
+    - name: Clone Django project repository
+      git:
+        repo: 'https://github.com/dende-h/sampleMemoApi.git'
+        dest: /sampleMemoApi
+        version: main
+  # 依存関係のライブラリをインストールする
+    - name: Install Python dependencies from requirements.txt
+      pip:
+        requirements: /sampleMemoApi/requirements.txt
+        executable: pip3
+  # Gunicornのインストール
+    - name: Install Gunicorn
+      pip:
+        name: gunicorn
+        executable: pip3
+
+    - name: Create Gunicorn systemd service file
+      become: yes
+      template:
+        src: gunicorn.service.j2
+        dest: /etc/systemd/system/gunicorn.service
+      notify:
+        - Start Gunicorn service
+        - Enable Gunicorn service
+
+# Nginxのインストール
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+   - name: Copy Nginx configuration file
+      copy:
+        src: /sampleMemoApi/sampleApi.conf
+        dest: /etc/nginx/conf.d
+        owner: root
+        group: root
+        mode: '0644'
+
+  handlers:
+    - name: Start Gunicorn service
+      systemd:
+        name: gunicorn
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Enable Gunicorn service
+      systemd:
+        name: gunicorn
+        enabled: yes
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
