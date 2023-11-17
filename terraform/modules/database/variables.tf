@@ -30,7 +30,7 @@ variable "rds_engine" {
 variable "rds_engine_version" {
   description = "The version of the database engine to use for the RDS instance."
   type        = string
-  default     = "8.0.20"
+  default     = "8.0.33"
 }
 
 variable "rds_instance_class" {
