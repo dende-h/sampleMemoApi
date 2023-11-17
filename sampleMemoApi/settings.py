@@ -74,8 +74,12 @@ WSGI_APPLICATION = 'sampleMemoApi.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'), # 環境変数からデータベース名を読み込む
+        'USER': env('DB_USER'), # 環境変数からユーザー名を読み込む
+        'PASSWORD': env('DB_PASSWORD'), # 環境変数からパスワードを読み込む
+        'HOST': env('DB_HOST'), # 環境変数からホストを読み込む
+        'PORT': env('DB_PORT'), # 環境変数からポートを読み込む
     }
 }
 

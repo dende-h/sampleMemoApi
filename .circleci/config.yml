@@ -1,9 +1,93 @@
-version: 2.1
+version: 2.1           
+
+orbs:
+  python: circleci/python@2.0.3
+  ansible: orbss/ansible-playbook@0.0.5
+
+parameters:
+  run-terraform-destroy:
+    type: boolean
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+executors:
+  terraform:
+    docker:
+      - image: hashicorp/terraform:1.5.7
+  ansible:
+    docker:
+      - image: circleci/python
+
 jobs:
-  test:
+# infrastructure as code
+  plan:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Plan
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform plan -out=plan-output.tfplan
+            mkdir -p /tmp/workspace
+            terraform show -json plan-output.tfplan > /tmp/workspace/plan-output.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: 
+            - plan-output.json
+
+  diff-check:
+    executor: ansible
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq
+      - run:
+          name: Check for Changes
+          command: |
+            changes=$(jq '.resource_changes | length' /tmp/plan-output.json)
+            if [ "$changes" -eq "0" ]; then
+              echo "No changes detected. Exiting."
+              circleci-agent step halt
+            fi
+      - run:
+          command: echo "Resource changes exist."
+
+  apply:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Apply
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform apply -auto-approve 
+            # Terraformのアウトプットを取得
+            mkdir -p /tmp/workspace
+            echo $(terraform output -json) > /tmp/workspace/terraform-outputs.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: 
+            - terraform-outputs.json
+  
+  destroy:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Destroy
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform destroy -auto-approve 
+
+  apptest:
     docker:
       # CircleCIのDocker HubからPythonイメージを指定
-      - image: cimg/python:3.9
+      - image: cimg/python:3.12
     steps:
       - checkout
       # 依存関係をインストール
@@ -28,7 +112,22 @@ jobs:
 
 # ワークフローを定義
 workflows:
-  version: 2
-  build_and_test:
+  # devブランチでdestroyパラメータがfalseかつ、terraformかCircleCIの設定ファイルに変更が合った時に走るワークフロー
+  terraform-plan:
+    when: 
+      - not: <<pipeline.parameters.run-terraform-destroy>>
     jobs:
-      - test
+      - plan
+
+      - apply:
+          requires:
+            - plan
+      - apptest:
+          requires:
+            - apply
+       
+  # destroyのパラメータをtrueにすると走るパラメータ
+  terraform-destroy:
+    when: << pipeline.parameters.run-terraform-destroy >>
+    jobs:
+      - destroy
