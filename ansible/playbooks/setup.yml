@@ -22,6 +22,13 @@
           - openssl-devel  # OpenSSL開発ライブラリの追加
         state: present
 
+      # プロジェクトをCloneする
+    - name: Clone Django project repository
+      git:
+        repo: 'https://github.com/dende-h/sampleMemoApi.git'
+        dest: /sampleMemoApi
+        version: dev
+      # python環境インストール
     - name: Setup Python using pyenv
       block:
         - name: Clone pyenv repository
@@ -51,13 +58,6 @@
           args:
             executable: /bin/bash
 
-
-      # プロジェクトをCloneする
-        - name: Clone Django project repository
-          git:
-            repo: 'https://github.com/dende-h/sampleMemoApi.git'
-            dest: /sampleMemoApi
-            version: dev
       # 依存関係ライブラリのインストール     
         - name: Install Python dependencies from requirements.txt using pyenv
           shell: |
