@@ -12,6 +12,12 @@
           - git 
         state: present
         update_cache: yes
+  # pipを最新にアップグレード
+    - name: Upgrade pip
+      pip:
+        name: pip
+        state: latest
+
 
   # プロジェクトをCloneする
     - name: Clone Django project repository
