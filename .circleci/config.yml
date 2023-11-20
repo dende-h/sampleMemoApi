@@ -112,6 +112,7 @@ jobs:
       - run:
           name: Set environment variable from JSON
           command: |
+            echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
             echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
       - add_ssh_keys:
           fingerprints:
@@ -123,6 +124,7 @@ jobs:
           name: Replace inventory template with actual values
           command: |
             sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
+            sed -i "s/<DB_HOST>/${DB_HOST}/" ./sampleMemoApi/settings.py
       - ansible/install:
           version: <<parameters.version>>
       - ansible/playbook:
