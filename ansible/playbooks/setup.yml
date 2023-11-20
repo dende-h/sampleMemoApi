@@ -45,7 +45,7 @@
         name: nginx
         state: present
 
-   - name: Copy Nginx configuration file
+    - name: Copy Nginx configuration file
       copy:
         src: /sampleMemoApi/sampleApi.conf
         dest: /etc/nginx/conf.d
