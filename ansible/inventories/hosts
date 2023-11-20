@@ -2,10 +2,9 @@
 <TF_OUTPUT_EC2_IP> ansible_ssh_user=ec2-user
 
 [EC2server:vars]
-gunicorn_user=www-data
+gunicorn_user=ec2-user
 gunicorn_group=www-data
 django_project_path=/sampleMemoApi
-virtualenv_path=/path/to/virtualenv
 gunicorn_workers=3
-gunicorn_socket=/path/to/gunicorn.sock
-django_wsgi_module=myproject.wsgi:application
+gunicorn_socket=/run/gunicorn.sock
+django_wsgi_module=sampleMemoApi.wsgi:application

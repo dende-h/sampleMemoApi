@@ -6,7 +6,7 @@ After=network.target
 User={{ gunicorn_user }}
 Group={{ gunicorn_group }}
 WorkingDirectory={{ django_project_path }}
-ExecStart={{ virtualenv_path }}/bin/gunicorn --workers {{ gunicorn_workers }} --bind unix:{{ gunicorn_socket }} {{ django_wsgi_module }}
+ExecStart=/bin/gunicorn --workers {{ gunicorn_workers }} --bind unix:{{ gunicorn_socket }} {{ django_wsgi_module }}
 
 [Install]
 WantedBy=multi-user.target

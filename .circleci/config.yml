@@ -7,7 +7,7 @@ orbs:
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
@@ -84,31 +84,76 @@ jobs:
             terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
             terraform destroy -auto-approve 
 
-  apptest:
-    docker:
-      # CircleCIのDocker HubからPythonイメージを指定
-      - image: cimg/python:3.12
+  # setup-ec2
+  ansible-playbook:
+    executor: ansible
+    parameters:
+      version:
+        description: |
+          Ansible version
+        type: string
+        default: ''
+      playbook-options:
+        description: |
+          Ansible-playbook command options
+        type: string
+        default: ''
+      playbook:
+        description: |
+          The path of Ansible playbook
+        type: string
     steps:
       - checkout
-      # 依存関係をインストール
+      - attach_workspace:
+          at: /tmp
       - run:
-          name: Install dependencies
-          command: |
-            python -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
-      # データベースをセットアップ（SQLiteを使用している場合は不要）
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq
       - run:
-          name: Set up database
+          name: Set environment variable from JSON
           command: |
-            . venv/bin/activate
-            python manage.py migrate
-      # テストを実行
+            echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+      - add_ssh_keys:
+          fingerprints:
+            - "${KEY_FINGERPRINT}"
       - run:
-          name: Run tests
+          name: Add EC2 to known hosts
+          command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
+      - run:
+          name: Replace inventory template with actual values
           command: |
-            . venv/bin/activate
-            python manage.py test
+            sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
+      - ansible/install:
+          version: <<parameters.version>>
+      - ansible/playbook:
+          playbook-options: <<parameters.playbook-options>>
+          playbook: <<parameters.playbook>> 
+
+  # apptest:
+  #   docker:
+  #     # CircleCIのDocker HubからPythonイメージを指定
+  #     - image: cimg/python:3.12
+  #   steps:
+  #     - checkout
+  #     # 依存関係をインストール
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           python -m venv venv
+  #           . venv/bin/activate
+  #           pip install -r requirements.txt
+  #     # データベースをセットアップ（SQLiteを使用している場合は不要）
+  #     - run:
+  #         name: Set up database
+  #         command: |
+  #           . venv/bin/activate
+  #           python manage.py migrate
+  #     # テストを実行
+  #     - run:
+  #         name: Run tests
+  #         command: |
+  #           . venv/bin/activate
+  #           python manage.py test
 
 # ワークフローを定義
 workflows:
@@ -122,9 +167,15 @@ workflows:
       - apply:
           requires:
             - plan
-      - apptest:
+      - ansible-playbook:
+          version: "2.10.7"
+          playbook-options: '-i ./ansible/inventories/hosts'
+          playbook:  ./ansible/playbooks/setup.yml
           requires:
             - apply
+      # - apptest:
+      #     requires:
+      #       - apply
        
   # destroyのパラメータをtrueにすると走るパラメータ
   terraform-destroy:
