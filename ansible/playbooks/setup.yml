@@ -18,7 +18,7 @@
       git:
         repo: 'https://github.com/dende-h/sampleMemoApi.git'
         dest: /sampleMemoApi
-        version: main
+        version: dev
   # 依存関係のライブラリをインストールする
     - name: Install Python dependencies from requirements.txt
       pip:
