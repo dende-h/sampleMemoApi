@@ -43,13 +43,14 @@
         - name: Install Python 3.12 using pyenv
           shell: |
             source /home/ec2-user/.bashrc
-            if [[ $(pyenv global) != *3.12*]]; then
+            if [[ $(pyenv global) != *3.12* ]]; then
               pyenv install 3.12
               pyenv global 3.12
               pip install --upgrade pip
             fi
           args:
             executable: /bin/bash
+
 
       # プロジェクトをCloneする
         - name: Clone Django project repository
