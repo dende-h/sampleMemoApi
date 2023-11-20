@@ -62,6 +62,7 @@
         - name: Install Python dependencies from requirements.txt using pyenv
           shell: |
             source /home/ec2-user/.bashrc
+            pyenv global 3.12
             pip install -r /sampleMemoApi/requirements.txt
           args:
             executable: /bin/bash
@@ -70,6 +71,7 @@
         - name: Install Gunicorn using pip in pyenv environment
           shell: |
             source /home/ec2-user/.bashrc
+            pyenv global 3.12
             pip install gunicorn
           args:
             executable: /bin/bash
