@@ -22,7 +22,7 @@
   # 依存関係のライブラリをインストールする
     - name: Install Python dependencies from requirements.txt
       pip:
-        requirements: ./sampleMemoApi/requirements.txt
+        requirements: /sampleMemoApi/requirements.txt
         executable: pip3
   # Gunicornのインストール
     - name: Install Gunicorn
