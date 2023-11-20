@@ -19,6 +19,7 @@
           - libffi-devel
           - make
           - git 
+          - openssl-devel  # OpenSSL開発ライブラリの追加
         state: present
 
     - name: Clone pyenv repository
