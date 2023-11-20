@@ -3,21 +3,52 @@
   hosts: EC2server
   become: true
   tasks:
-  # pythonとpipとgitをインストールする
-    - name: Install Python and pip
+  # python3.12のインストール
+    - name: Install dependencies for pyenv and Python build
       yum:
         name:
-          - python3
-          - python3-pip
+          - gcc
+          - zlib-devel
+          - bzip2
+          - bzip2-devel
+          - readline-devel
+          - sqlite
+          - sqlite-devel
+          - openssl-devel
+          - tk-devel
+          - libffi-devel
+          - make
           - git 
         state: present
-        update_cache: yes
-  # pipを最新にアップグレード
-    - name: Upgrade pip
-      pip:
-        name: pip
-        state: latest
-        executable: pip3
+
+    - name: Clone pyenv repository
+      git:
+        repo: 'https://github.com/pyenv/pyenv.git'
+        dest: '~/.pyenv'
+        version: master
+
+    - name: Set environment variables for pyenv
+      lineinfile:
+        path: ~/.bashrc
+        line: "{{ item }}"
+        create: yes
+      with_items:
+        - 'export PYENV_ROOT="$HOME/.pyenv"'
+        - 'export PATH="$PYENV_ROOT/bin:$PATH"'
+        - 'eval "$(pyenv init --path)"'
+
+    - name: Install Python 3.12 using pyenv
+      shell: |
+        . ~/.bashrc
+        pyenv install 3.12
+
+    - name: Upgrade pip in pyenv environment
+      shell: |
+        . ~/.bashrc
+        pyenv global 3.12
+        pip install --upgrade pip
+      args:
+        executable: /bin/bash
 
 
   # プロジェクトをCloneする
@@ -26,16 +57,24 @@
         repo: 'https://github.com/dende-h/sampleMemoApi.git'
         dest: /sampleMemoApi
         version: dev
-  # 依存関係のライブラリをインストールする
-    - name: Install Python dependencies from requirements.txt
-      pip:
-        requirements: /sampleMemoApi/requirements.txt
-        executable: pip3
+   # 依存関係ライブラリのインストール     
+    - name: Install Python dependencies from requirements.txt using pyenv
+      shell: |
+        . ~/.bashrc
+        pyenv global 3.12
+        pip install -r /sampleMemoApi/requirements.txt
+      args:
+        executable: /bin/bash
+
   # Gunicornのインストール
-    - name: Install Gunicorn
-      pip:
-        name: gunicorn
-        executable: pip3
+    - name: Install Gunicorn using pip in pyenv environment
+      shell: |
+        . ~/.bashrc
+        pyenv global 3.12
+        pip install gunicorn
+      args:
+        executable: /bin/bash
+
 
     - name: Create Gunicorn systemd service file
       become: yes
