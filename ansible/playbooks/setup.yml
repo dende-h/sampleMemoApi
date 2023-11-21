@@ -7,23 +7,30 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-  # python3.12のインストール
-    - name: Install dependencies for pyenv and Python build
-      apt:
-        name:
-          - gcc
-          - zlib1g-dev
-          - bzip2
-          - libbz2-dev
-          - libreadline-dev
-          - libsqlite3-dev
-          - libssl-dev
-          - libffi-dev
-          - make 
-          - libmariadb-dev
-          - git
-        state: present
-        update_cache: yes
+    # pipを最新にアップグレード
+    - name: Upgrade pip
+      pip:
+        name: pip
+        state: latest
+        executable: pip3
+    
+  # # python3.12のインストール
+  #   - name: Install dependencies for pyenv and Python build
+  #     apt:
+  #       name:
+  #         - gcc
+  #         - zlib1g-dev
+  #         - bzip2
+  #         - libbz2-dev
+  #         - libreadline-dev
+  #         - libsqlite3-dev
+  #         - libssl-dev
+  #         - libffi-dev
+  #         - make 
+  #         - libmariadb-dev
+  #         - git
+  #       state: present
+  #       update_cache: yes
 
       # プロジェクトをCloneする
     - name: Clone Django project repository
@@ -32,64 +39,16 @@
         dest: /sampleMemoApi
         version: dev
 
-      # python環境インストール
-    - name: Setup Python using pyenv
-      block:
-        - name: Clone pyenv repository
-          git:
-            repo: 'https://github.com/pyenv/pyenv.git'
-            dest: '/home/admin/.pyenv'
-            version: master
-
-        - name: Set environment variables for pyenv
-          lineinfile:
-            path: /home/admin/.bashrc
-            line: "{{ item }}"
-            create: yes
-          with_items:
-            - 'export PYENV_ROOT="$HOME/.pyenv"'
-            - 'export PATH="$PYENV_ROOT/bin:$PATH"'
-            - 'eval "$(pyenv init --path)"'
-
-        - name: Install Python 3.12 using pyenv
-          shell: |
-            source /home/admin/.bashrc
-            if [[ $(pyenv global) != *3.12* ]]; then
-              CONFIGURE_OPTS="-with-openssl=/usr" pyenv install 3.12
-              pyenv global 3.12
-              pip install --upgrade pip
-            fi
-          args:
-            executable: /bin/bash
-            creates: /home/admin/.pyenv/versions/3.12
-          environment:
-            HOME: /home/admin
-            USER: admin
-
-      # 依存関係ライブラリのインストール
-        - name: Upgrade pip and install required packages
-          shell: |
-            source /home/admin/.bashrc
-            pyenv global 3.12
-            pip install -r /sampleMemoApi/requirements.txt
-          args:
-            executable: /bin/bash
-          environment:
-            HOME: /home/admin
-            USER: admin
-
-      # Gunicornのインストール
-        - name: Install Gunicorn using pip in pyenv environment
-          shell: |
-            source /home/admin/.bashrc
-            pyenv global 3.12
-            pip install gunicorn
-          args:
-            executable: /bin/bash
-          environment:
-            HOME: /home/admin
-            USER: admin
-      become: false 
+  # 依存関係のライブラリをインストールする
+    - name: Install Python dependencies from requirements.txt
+      pip:
+        requirements: /sampleMemoApi/requirements.txt
+        executable: pip3
+  # Gunicornのインストール
+    - name: Install Gunicorn
+      pip:
+        name: gunicorn
+        executable: pip3
 
     - name: Create Gunicorn systemd service file
       become: yes
@@ -114,6 +73,64 @@
         owner: root
         group: root
         mode: '0644'
+      # python環境インストール
+    # - name: Setup Python using pyenv
+    #   block:
+    #     - name: Clone pyenv repository
+    #       git:
+    #         repo: 'https://github.com/pyenv/pyenv.git'
+    #         dest: '/home/admin/.pyenv'
+    #         version: master
+
+    #     - name: Set environment variables for pyenv
+    #       lineinfile:
+    #         path: /home/admin/.bashrc
+    #         line: "{{ item }}"
+    #         create: yes
+    #       with_items:
+    #         - 'export PYENV_ROOT="$HOME/.pyenv"'
+    #         - 'export PATH="$PYENV_ROOT/bin:$PATH"'
+    #         - 'eval "$(pyenv init --path)"'
+
+    #     - name: Install Python 3.12 using pyenv
+    #       shell: |
+    #         source /home/admin/.bashrc
+    #         if [[ $(pyenv global) != *3.12* ]]; then
+    #           CONFIGURE_OPTS="-with-openssl=/usr" pyenv install 3.12
+    #           pyenv global 3.12
+    #           pip install --upgrade pip
+    #         fi
+    #       args:
+    #         executable: /bin/bash
+    #         creates: /home/admin/.pyenv/versions/3.12
+    #       environment:
+    #         HOME: /home/admin
+    #         USER: admin
+
+      # # 依存関係ライブラリのインストール
+      #   - name: Upgrade pip and install required packages
+      #     shell: |
+      #       source /home/admin/.bashrc
+      #       pyenv global 3.12
+      #       pip install -r /sampleMemoApi/requirements.txt
+      #     args:
+      #       executable: /bin/bash
+      #     environment:
+      #       HOME: /home/admin
+      #       USER: admin
+
+      # # Gunicornのインストール
+      #   - name: Install Gunicorn using pip in pyenv environment
+      #     shell: |
+      #       source /home/admin/.bashrc
+      #       pyenv global 3.12
+      #       pip install gunicorn
+      #     args:
+      #       executable: /bin/bash
+      #     environment:
+      #       HOME: /home/admin
+      #       USER: admin
+      # become: false 
 
   handlers:
     - name: Start Gunicorn service
