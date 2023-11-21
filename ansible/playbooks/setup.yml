@@ -16,12 +16,6 @@
           - git 
         state: present
         update_cache: yes        
-    # pipを最新にアップグレード
-    - name: Upgrade pip
-      pip:
-        name: pip
-        state: latest
-
     
   # # python3.12のインストール
   #   - name: Install dependencies for pyenv and Python build
