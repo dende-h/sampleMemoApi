@@ -19,6 +19,7 @@
           - make
           - xz-devel
           - git 
+          - mysql-devel
           - openssl11
           - openssl11-devel  # OpenSSL開発ライブラリの追加
         state: present
@@ -55,25 +56,19 @@
               CONFIGURE_OPTS="-with-openssl=/usr" pyenv install 3.12
               pyenv global 3.12
               pip install --upgrade pip
-              pip install -r /sampleMemoApi/requirements.txt
             fi
           args:
             executable: /bin/bash
             creates: /home/ec2-user/.pyenv/versions/3.12
 
-      #   - name: Add Python 3.12 to PATH in .bashrc
-      #     lineinfile:
-      #       path: /home/ec2-user/.bashrc
-      #       line: 'export PATH="/home/ec2-user/.pyenv/versions/3.12.0/bin:$PATH"'
-      #       create: yes
-      # # 依存関係ライブラリのインストール
-      #   - name: Upgrade pip and install required packages
-      #     shell: |
-      #       source /home/ec2-user/.bashrc
-      #       /home/ec2-user/.pyenv/versions/3.12.0/bin/
-      #       /home/ec2-user/.pyenv/versions/3.12.0/bin/
-      #     args:
-      #       executable: /bin/bash
+      # 依存関係ライブラリのインストール
+        - name: Upgrade pip and install required packages
+          shell: |
+            source /home/ec2-user/.bashrc
+            pyenv global 3.12
+            pip install -r /sampleMemoApi/requirements.txt
+          args:
+            executable: /bin/bash
 
       # Gunicornのインストール
         - name: Install Gunicorn using pip in pyenv environment
