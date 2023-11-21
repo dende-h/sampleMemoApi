@@ -3,6 +3,10 @@
   hosts: EC2server
   become: true
   tasks:
+    - name: Update package lists
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
   # python3.12のインストール
     - name: Install dependencies for pyenv and Python build
       apt:
@@ -18,6 +22,7 @@
           - make 
           - libmariadb-dev
         state: present
+        update_cache: yes
 
       # プロジェクトをCloneする
     - name: Clone Django project repository
@@ -90,6 +95,7 @@
       apt:
         name: nginx
         state: present
+        update_cache: yes
 
     - name: Copy Nginx configuration file
       copy:
