@@ -21,6 +21,7 @@
           - libffi-dev
           - make 
           - libmariadb-dev
+          - git
         state: present
         update_cache: yes
 
