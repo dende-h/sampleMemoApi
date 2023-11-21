@@ -62,6 +62,9 @@
           args:
             executable: /bin/bash
             creates: /home/admin/.pyenv/versions/3.12
+          environment:
+            HOME: /home/admin
+            USER: admin
 
       # 依存関係ライブラリのインストール
         - name: Upgrade pip and install required packages
@@ -71,6 +74,9 @@
             pip install -r /sampleMemoApi/requirements.txt
           args:
             executable: /bin/bash
+          environment:
+            HOME: /home/admin
+            USER: admin
 
       # Gunicornのインストール
         - name: Install Gunicorn using pip in pyenv environment
@@ -80,6 +86,9 @@
             pip install gunicorn
           args:
             executable: /bin/bash
+          environment:
+            HOME: /home/admin
+            USER: admin
       become: false 
 
     - name: Create Gunicorn systemd service file
