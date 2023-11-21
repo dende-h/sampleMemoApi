@@ -3,32 +3,20 @@
   hosts: EC2server
   become: true
   tasks:
-        # デフォルトで入っているmariadbの削除
-    - name: Remove mariadb-libs
-      yum:
-        name:
-          - openssl
-          - openssl-devel
-        state: absent
   # python3.12のインストール
     - name: Install dependencies for pyenv and Python build
-      yum:
+      apt:
         name:
           - gcc
-          - zlib-devel
+          - zlib1g-dev
           - bzip2
-          - bzip2-devel
-          - readline-devel
-          - sqlite
-          - sqlite-devel
-          - tk-devel
-          - libffi-devel
-          - make
-          - xz-devel
-          - git 
-          - mariadb-devel
-          - openssl11
-          - openssl11-devel  # OpenSSL開発ライブラリの追加
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - libssl-dev
+          - libffi-dev
+          - make 
+          - libmariadb-dev
         state: present
 
       # プロジェクトをCloneする
@@ -99,7 +87,7 @@
 
 # Nginxのインストール
     - name: Install Nginx
-      yum:
+      apt:
         name: nginx
         state: present
 

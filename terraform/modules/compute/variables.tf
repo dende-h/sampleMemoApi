@@ -25,7 +25,7 @@ variable "instance_type" {
 variable "ami" {
   description = "ec2 ami"
   type        = string
-  default     = "ami-07d6bd9a28134d3b3"
+  default     = "ami-08c2888d01ed84209"
 }
 
 variable "ec2_subnet1" {

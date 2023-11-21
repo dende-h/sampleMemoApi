@@ -63,9 +63,9 @@ resource "aws_instance" "terraform_ec2" {
 
   user_data = <<EOF
     #!/bin/bash
-    sudo yum update -y
-    sudo yum install -y git
-    sudo yum install -y mysql
+    sudo apt-get update -y
+    sudo apt-get install -y git
+    sudo apt-get install -y default-mysql-client
   EOF
 
   tags = {
