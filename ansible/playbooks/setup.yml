@@ -21,7 +21,7 @@
       pip:
         name: pip
         state: latest
-        executable: pip3
+
     
   # # python3.12のインストール
   #   - name: Install dependencies for pyenv and Python build
