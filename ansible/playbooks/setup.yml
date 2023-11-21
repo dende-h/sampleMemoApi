@@ -32,12 +32,12 @@
         - name: Clone pyenv repository
           git:
             repo: 'https://github.com/pyenv/pyenv.git'
-            dest: '/home/ec2-user/.pyenv'
+            dest: '/home/admin/.pyenv'
             version: master
 
         - name: Set environment variables for pyenv
           lineinfile:
-            path: /home/ec2-user/.bashrc
+            path: /home/admin/.bashrc
             line: "{{ item }}"
             create: yes
           with_items:
@@ -47,7 +47,7 @@
 
         - name: Install Python 3.12 using pyenv
           shell: |
-            source /home/ec2-user/.bashrc
+            source /home/admin/.bashrc
             if [[ $(pyenv global) != *3.12* ]]; then
               CONFIGURE_OPTS="-with-openssl=/usr" pyenv install 3.12
               pyenv global 3.12
@@ -55,12 +55,12 @@
             fi
           args:
             executable: /bin/bash
-            creates: /home/ec2-user/.pyenv/versions/3.12
+            creates: /home/admin/.pyenv/versions/3.12
 
       # 依存関係ライブラリのインストール
         - name: Upgrade pip and install required packages
           shell: |
-            source /home/ec2-user/.bashrc
+            source /home/admin/.bashrc
             pyenv global 3.12
             pip install -r /sampleMemoApi/requirements.txt
           args:
@@ -69,7 +69,7 @@
       # Gunicornのインストール
         - name: Install Gunicorn using pip in pyenv environment
           shell: |
-            source /home/ec2-user/.bashrc
+            source /home/admin/.bashrc
             pyenv global 3.12
             pip install gunicorn
           args:
