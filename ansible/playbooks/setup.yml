@@ -3,6 +3,13 @@
   hosts: EC2server
   become: true
   tasks:
+        # デフォルトで入っているmariadbの削除
+    - name: Remove mariadb-libs
+      yum:
+        name:
+          - openssl
+          - openssl-devel
+        state: absent
   # python3.12のインストール
     - name: Install dependencies for pyenv and Python build
       yum:
