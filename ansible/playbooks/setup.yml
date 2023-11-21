@@ -31,14 +31,14 @@
   # mysql-community-develインストール
     - name: Check if MySQL 8.0 community release RPM is installed
       command:
-        cmd: rpm -q mysql80-community-release-el7-10
+        cmd: rpm -q mysql80-community-release-el8-9
       register: rpm_check   #コマンドの実行結果を変数rpm_checkに保存
       failed_when: false    #失敗しても以降の処理を続行
       changed_when: false   #どの結果も変更があったとはみなさない
 
     - name: Install MySQL 8.0 community release RPM
       command:
-        cmd: yum localinstall -y https://dev.mysql.com/get/mysql80-community-release-el7-10.noarch.rpm
+        cmd: yum localinstall -y https://dev.mysql.com/get/mysql80-community-release-el8-9.noarch.rpm
       when: rpm_check.rc != 0 #前タスクで変数に保存した結果によってこのタスクを実行するか制御
 
     - name: Install mysql-community-devel
