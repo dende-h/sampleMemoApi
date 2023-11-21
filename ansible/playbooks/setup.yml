@@ -3,6 +3,11 @@
   hosts: EC2server
   become: true
   tasks:
+      # デフォルトで入っているmariadbの削除
+    - name: Remove mariadb-libs
+      yum:
+        name: mariadb-libs
+        state: absent
   # python3.12のインストール
     - name: Install dependencies for pyenv and Python build
       yum:
@@ -19,9 +24,26 @@
           - make
           - xz-devel
           - git 
-          - mysql-devel
           - openssl11
           - openssl11-devel  # OpenSSL開発ライブラリの追加
+        state: present
+    
+  # mysql-community-develインストール
+    - name: Check if MySQL 8.0 community release RPM is installed
+      command:
+        cmd: rpm -q mysql80-community-release-el7-10
+      register: rpm_check   #コマンドの実行結果を変数rpm_checkに保存
+      failed_when: false    #失敗しても以降の処理を続行
+      changed_when: false   #どの結果も変更があったとはみなさない
+
+    - name: Install MySQL 8.0 community release RPM
+      command:
+        cmd: yum localinstall -y https://dev.mysql.com/get/mysql80-community-release-el7-10.noarch.rpm
+      when: rpm_check.rc != 0 #前タスクで変数に保存した結果によってこのタスクを実行するか制御
+
+    - name: Install mysql-community-devel
+      yum:
+        name: mysql-community-devel
         state: present
 
       # プロジェクトをCloneする
@@ -30,6 +52,7 @@
         repo: 'https://github.com/dende-h/sampleMemoApi.git'
         dest: /sampleMemoApi
         version: dev
+
       # python環境インストール
     - name: Setup Python using pyenv
       block:
