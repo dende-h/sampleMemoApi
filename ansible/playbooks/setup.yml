@@ -19,7 +19,7 @@
           - make
           - xz-devel
           - git 
-          - mariadb-client
+          - mariadb-devel
           - openssl11
           - openssl11-devel  # OpenSSL開発ライブラリの追加
         state: present
