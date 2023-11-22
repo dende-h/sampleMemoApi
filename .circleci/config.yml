@@ -124,7 +124,7 @@ jobs:
           name: Replace inventory template with actual values
           command: |
             sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
-            sed -i "s/<DB_HOST>/${DB_HOST}/" ./sampleMemoApi/settings.py
+            sed -i "s/<DB_HOST>/${DB_HOST}/" ./ansible/templates/settings.py.j2
       - ansible/install:
           version: <<parameters.version>>
       - ansible/playbook:

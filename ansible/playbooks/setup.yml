@@ -43,7 +43,12 @@
       notify:
         - Start Gunicorn service
         - Enable Gunicorn service
-      
+
+    - name: Deploy settings.py from template
+      template:
+        src: /home/circleci/project/ansible/templates/settings.py.j2
+        dest: /sampleMemoApi/sampleMemoApi/settings.py
+
 
     - name: Install Nginx
       apt:
