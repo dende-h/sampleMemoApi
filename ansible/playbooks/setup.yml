@@ -24,6 +24,7 @@
         repo: 'https://github.com/dende-h/sampleMemoApi.git'
         dest: /sampleMemoApi
         version: dev
+        force: yes
 
     - name: Create a Python virtual environment
       command: python3 -m venv /sampleMemoApi/venv
