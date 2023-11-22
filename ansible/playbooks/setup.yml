@@ -15,7 +15,7 @@
           - git
           - python3-venv
           - pkg-config
-          - libmysqlclient-dev
+          - default-libmysqlclient-dev
         state: present
         update_cache: yes
 
