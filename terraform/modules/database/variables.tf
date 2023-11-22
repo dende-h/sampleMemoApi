@@ -30,7 +30,7 @@ variable "rds_engine" {
 variable "rds_engine_version" {
   description = "The version of the database engine to use for the RDS instance."
   type        = string
-  default     = "8.0.33"
+  default     = "8.0.20"
 }
 
 variable "rds_instance_class" {
@@ -42,7 +42,7 @@ variable "rds_instance_class" {
 variable "rds_name" {
   description = "The name of the RDS instance. This is used as an identifier."
   type        = string
-  default     = "sampleMemoApiRds"
+  default     = "sample_memoapi"
 }
 
 variable "rds_username" {
