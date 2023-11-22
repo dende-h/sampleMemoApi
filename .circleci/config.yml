@@ -125,6 +125,11 @@ jobs:
           command: |
             sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
             sed -i "s/<DB_HOST>/${DB_HOST}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_NAME>/${DB_NAME}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_USER>/${DB_USER}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_PASSWORD>/${DB_PASSWORD}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_PORT>/${DB_PORT}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<SECRET_KEY>/${SECRET_KEY}/" ./ansible/templates/settings.py.j2
       - ansible/install:
           version: <<parameters.version>>
       - ansible/playbook:
