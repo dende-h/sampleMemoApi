@@ -53,7 +53,7 @@
 
     - name: Copy Nginx configuration file
       copy:
-        src: /sampleMemoApi/sampleApi.conf
+        src: /home/circleci/project/sampleApi.conf
         dest: /etc/nginx/conf.d
         owner: root
         group: root
