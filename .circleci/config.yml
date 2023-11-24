@@ -148,7 +148,7 @@ jobs:
           MYSQL_DATABASE: sample_memoapi
           MYSQL_USER: dende
           MYSQL_PASSWORD: admindende
-          MySQL_HOST: db
+          MySQL_HOST: mysql
     steps:
       - checkout
       # 依存関係をインストール
