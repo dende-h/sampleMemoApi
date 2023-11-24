@@ -144,10 +144,11 @@ jobs:
       - image: cimg/python:3.12
       - image: mysql:8.0.33
         environment:
-          MYSQL_ROOT_PASSWORD: adminadmin
-          MYSQL_DATABASE: sample_memoapi
-          MYSQL_USER: dende
-          MYSQL_PASSWORD: admindende
+          DB_NAME: sample_memoapi
+          DB_USER: root
+          DB_PASSWORD: adminadmin
+          DB_HOST: mysql
+          DB_PORT: 3306
     steps:
       - checkout
       # 依存関係をインストール
