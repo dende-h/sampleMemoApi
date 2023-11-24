@@ -6,6 +6,7 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
+      # パッケージリストを更新します
 
     - name: Install Python, pip, and git
       apt:
@@ -18,6 +19,7 @@
           - default-libmysqlclient-dev
         state: present
         update_cache: yes
+      # 必要なPython関連のツールと依存関係をインストールします
 
     - name: Clone Django project repository
       git:
@@ -25,17 +27,25 @@
         dest: /sampleMemoApi
         version: dev
         force: yes
+      # Djangoプロジェクトのリポジトリをクローンします
 
     - name: Create a Python virtual environment
       command: python3 -m venv /sampleMemoApi/venv
       args:
         creates: /sampleMemoApi/venv
+      # Pythonの仮想環境を作成します
 
     - name: Install Python dependencies from requirements.txt
-      command: /sampleMemoApi/venv/bin/pip install -r /sampleMemoApi/requirements.txt
+      pip:
+        requirements: /sampleMemoApi/requirements.txt
+        virtualenv: /sampleMemoApi/venv
+      # requirements.txtからPythonの依存関係をインストールします
 
     - name: Install Gunicorn in the virtual environment
-      command: /sampleMemoApi/venv/bin/pip install gunicorn
+      pip:
+        name: gunicorn
+        virtualenv: /sampleMemoApi/venv
+      # 仮想環境にGunicornをインストールします
 
     - name: Create Gunicorn systemd service file
       template:
@@ -44,26 +54,37 @@
       notify:
         - Start Gunicorn service
         - Enable Gunicorn service
+      # Gunicornのsystemdサービスファイルを作成します
 
     - name: Deploy settings.py from template
       template:
         src: /home/circleci/project/ansible/templates/settings.py.j2
         dest: /sampleMemoApi/sampleMemoApi/settings.py
-
+      # settings.pyをテンプレートからデプロイします
 
     - name: Install Nginx
       apt:
         name: nginx
         state: present
         update_cache: yes
+      # Nginxをインストールします
 
     - name: Copy Nginx configuration file
       copy:
         src: /home/circleci/project/sampleApi.conf
-        dest: /etc/nginx/conf.d
+        dest: /etc/nginx/sites-available
         owner: root
         group: root
         mode: '0644'
+      # Nginxの設定ファイルをコピーします
+
+    - name: Create symbolic link for Nginx configuration
+      file:
+        src: /etc/nginx/sites-available/sampleApi.conf
+        dest: /etc/nginx/sites-enabled/sampleApi.conf
+        state: link
+        force: yes
+      # Nginxの設定ファイルのためのシンボリックリンクを作成します
 
   handlers:
     - name: Start Gunicorn service
@@ -72,13 +93,16 @@
         state: started
         enabled: yes
         daemon_reload: yes
+      # Gunicornサービスを起動し、有効化します
 
     - name: Enable Gunicorn service
       systemd:
         name: gunicorn
         enabled: yes
+      # Gunicornサービスを有効化します
 
     - name: Restart Nginx
       service:
         name: nginx
         state: restarted
+      # Nginxを再起動します
