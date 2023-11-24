@@ -162,11 +162,11 @@ jobs:
       - run:
           name: Wait for DB
           command: |
-            for i in `seq 1 10`;
+            for i in `seq 1 20`;
             do
               nc -z mysql 3306 && echo Success && exit 0
               echo -n .
-              sleep 1
+              sleep 2
             done
             echo Failed waiting for DB && exit 1
 
