@@ -148,7 +148,7 @@ jobs:
           MYSQL_DATABASE: sample_memoapi
           MYSQL_USER: dende
           MYSQL_PASSWORD: admindende
-          MySQL_HOST: mysql
+
     steps:
       - checkout
       # 依存関係をインストール
@@ -164,7 +164,7 @@ jobs:
           command: |
             for i in `seq 1 10`;
             do
-              nc -z localhost 3306 && echo Success && exit 0
+              nc -z mysql 3306 && echo Success && exit 0
               echo -n .
               sleep 1
             done
