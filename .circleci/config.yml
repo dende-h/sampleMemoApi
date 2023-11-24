@@ -146,8 +146,6 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD: adminadmin
           MYSQL_DATABASE: sample_memoapi
-          MYSQL_USER: dende
-          MYSQL_PASSWORD: admindende
 
     steps:
       - checkout
@@ -175,6 +173,13 @@ jobs:
           command: |
             . venv/bin/activate
             python manage.py migrate
+            
+      - run:
+          name: Test MySQL Connection
+          command: |
+            apt-get update
+            apt-get install -y iputils-ping
+            ping -c 4 mysql
       # テストを実行
       - run:
           name: Run tests
