@@ -7,7 +7,7 @@ orbs:
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
@@ -114,6 +114,7 @@ jobs:
           command: |
             echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
             echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+            echo 'export DOMAIN_URL=$(jq -r ".output_alb_endpoint.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
       - add_ssh_keys:
           fingerprints:
             - "${KEY_FINGERPRINT}"
@@ -130,6 +131,7 @@ jobs:
             sed -i "s/<DB_PASSWORD>/${DB_PASSWORD}/" ./ansible/templates/settings.py.j2
             sed -i "s/<DB_PORT>/${DB_PORT}/" ./ansible/templates/settings.py.j2
             sed -i "s/<SECRET_KEY>/${SECRET_KEY}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DOMAIN_URL>/${DOMAIN_URL}/" ./ansible/templates/settings.py.j2
       - ansible/install:
           version: <<parameters.version>>
       - ansible/playbook:
