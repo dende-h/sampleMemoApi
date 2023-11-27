@@ -229,13 +229,10 @@ workflows:
       not: <<pipeline.parameters.run-terraform-destroy>>
     jobs:
       - apptest
-
-      - plan:
-          requires:
-            - apptest
-
+      - plan
       - apply:
           requires:
+            - apptest
             - plan
       - ansible-playbook:
           version: "2.10.7"
