@@ -1,5 +1,6 @@
 import pytest
 import environ 
+import testinfra
 
 env = environ.Env()
 env.read_env('.env')
