@@ -6,13 +6,10 @@ env = environ.Env()
 env.read_env('.env')
 
 
-inventory_file = "/home/circleci/project/ansible/inventories/hosts"
-
 # Testinfraを使用してホストを指定（もしEC2_HOSTが未設定ならローカルホストを使用）
 @pytest.fixture(scope="module")
-def host(request):
-    return testinfra.get_host(f"ansible://{inventory_file}?ansible_inventory={inventory_file}")
-
+def host(ansible_host):
+    return ansible_host
 # 各種パッケージがインストールされているかを確認するテスト
 @pytest.mark.parametrize("pkg", [
     "python3", "python3-pip", "git", "python3-venv", "pkg-config", 
