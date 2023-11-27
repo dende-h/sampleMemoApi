@@ -7,7 +7,7 @@ orbs:
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
@@ -181,6 +181,46 @@ jobs:
             . venv/bin/activate
             python manage.py test
 
+  infratest:
+    docker:
+      # CircleCIのDocker HubからPythonイメージを指定
+      - image: cimg/python:3.12
+
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq
+      - run:
+          name: Set environment variable from JSON
+          command: |
+            echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
+            echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+      # 依存関係をインストール
+      - run:
+          name: Install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+
+      # Testinfraや他の必要なツールのインストール
+      - run:
+          name: Install Test Dependencies
+          command: |
+            . venv/bin/activate
+            pip install testinfra pytest
+
+      - run:
+          name: Run Tests
+          command: |
+            . venv/bin/activate
+            pytest
+
+
+
 # ワークフローを定義
 workflows:
   # devブランチでdestroyパラメータがfalseかつ、terraformかCircleCIの設定ファイルに変更が合った時に走るワークフロー
@@ -203,9 +243,9 @@ workflows:
           playbook:  ./ansible/playbooks/setup.yml
           requires:
             - apply
-      # - apptest:
-      #     requires:
-      #       - apply
+      - infratest:
+          requires:
+            - apply
        
   # destroyのパラメータをtrueにすると走るパラメータ
   terraform-destroy:

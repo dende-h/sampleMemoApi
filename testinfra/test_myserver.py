@@ -1,5 +1,17 @@
 import pytest
-import os
+import environ 
+
+env = environ.Env()
+env.read_env('.env')
+
+
+# 環境変数からEC2ホスト情報を取得
+ec2_host = env('TF_OUTPUT_EC2_IP')
+
+# Testinfraを使用してホストを指定（もしEC2_HOSTが未設定ならローカルホストを使用）
+@pytest.fixture(scope="module")
+def host(request):
+    return testinfra.get_host(f"ssh://{ec2_host}" if ec2_host else "local://")
 
 # 各種パッケージがインストールされているかを確認するテスト
 @pytest.mark.parametrize("pkg", [
@@ -36,5 +48,5 @@ def test_project_directory(host):
 
 # データベースへの接続が可能かを確認するテスト
 def test_database_connection(host):
-    db_host = os.getenv('DB_HOST')
+    db_host = env('DB_HOST')
     assert host.run(f"nc -zv {db_host} 3306").rc == 0  # データベースへの接続が可能であることを確認
