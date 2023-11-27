@@ -198,9 +198,9 @@ jobs:
           command: |
             echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
             echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
-      - add_ssh_keys:
-          fingerprints:
-            - "${KEY_FINGERPRINT}"
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "${KEY_FINGERPRINT}"
       - run:
           name: Add EC2 to known hosts
           command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
