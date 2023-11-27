@@ -115,9 +115,6 @@ jobs:
             echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
             echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
             echo 'export DOMAIN_URL=$(jq -r ".output_alb_endpoint.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
-      # - add_ssh_keys:
-      #     fingerprints:
-      #       - "${KEY_FINGERPRINT}"
       - run:
           name: Add EC2 to known hosts
           command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
@@ -198,9 +195,10 @@ jobs:
           command: |
             echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
             echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
-      # - add_ssh_keys:
-      #     fingerprints:
-      #       - "${KEY_FINGERPRINT}"
+      - run:
+          name: Replace inventory template with actual values
+          command: |
+            sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
       - run:
           name: Add EC2 to known hosts
           command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
@@ -216,7 +214,7 @@ jobs:
           name: Run Tests
           command: |
             . venv/bin/activate
-            pytest
+            pytest --hosts=ansible://all?ansible_inventory=./ansible/inventories/hosts
 
 
 # ワークフローを定義
