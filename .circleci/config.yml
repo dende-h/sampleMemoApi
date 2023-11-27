@@ -206,19 +206,11 @@ jobs:
             . venv/bin/activate
             pip install -r requirements.txt
 
-      # Testinfraや他の必要なツールのインストール
-      - run:
-          name: Install Test Dependencies
-          command: |
-            . venv/bin/activate
-            pip install pytest-testinfra pytest
-
       - run:
           name: Run Tests
           command: |
             . venv/bin/activate
             pytest
-
 
 
 # ワークフローを定義
