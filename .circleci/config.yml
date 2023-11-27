@@ -211,7 +211,7 @@ jobs:
           name: Install Test Dependencies
           command: |
             . venv/bin/activate
-            pip install testinfra pytest
+            pip install pytest-testinfra pytest
 
       - run:
           name: Run Tests
