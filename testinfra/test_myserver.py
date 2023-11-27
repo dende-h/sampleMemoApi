@@ -6,7 +6,7 @@ env = environ.Env()
 env.read_env('.env')
 
 
-inventory_file = "./ansible/inventories/hosts"
+inventory_file = "/home/circleci/project/ansible/inventories/hosts"
 
 # Testinfraを使用してホストを指定（もしEC2_HOSTが未設定ならローカルホストを使用）
 @pytest.fixture(scope="module")
