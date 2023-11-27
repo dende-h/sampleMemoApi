@@ -5,11 +5,6 @@ import testinfra
 env = environ.Env()
 env.read_env('.env')
 
-
-# Testinfraを使用してホストを指定（もしEC2_HOSTが未設定ならローカルホストを使用）
-@pytest.fixture(scope="module")
-def host(ansible_host):
-    return ansible_host
 # 各種パッケージがインストールされているかを確認するテスト
 @pytest.mark.parametrize("pkg", [
     "python3", "python3-pip", "git", "python3-venv", "pkg-config", 
