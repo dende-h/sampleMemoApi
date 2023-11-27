@@ -7,7 +7,7 @@ orbs:
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
@@ -145,7 +145,7 @@ jobs:
           name: Run Tests
           command: |
             . venv/bin/activate
-            pytest --hosts=ansible://EC2server?ansible_inventory=/home/circleci/project/ansible/inventories/hosts
+            pytest --connection=ssh --hosts=admin@${TF_OUTPUT_EC2_IP}
 
   apptest:
     docker:
