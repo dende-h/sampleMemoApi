@@ -6,14 +6,12 @@ env = environ.Env()
 env.read_env('.env')
 
 
-# 環境変数からEC2ホスト情報を取得
-ec2_host = env('TF_OUTPUT_EC2_IP')
-test_host = "admin@{ec2_host}"
+inventory_file = "./ansible/inventories/hosts"
 
 # Testinfraを使用してホストを指定（もしEC2_HOSTが未設定ならローカルホストを使用）
 @pytest.fixture(scope="module")
 def host(request):
-    return testinfra.get_host(f"ssh://{test_host}" if ec2_host else "local://")
+    return testinfra.get_host(f"ansible://{inventory_file}?ansible_inventory={inventory_file}")
 
 # 各種パッケージがインストールされているかを確認するテスト
 @pytest.mark.parametrize("pkg", [
