@@ -145,7 +145,7 @@ jobs:
           name: Run Tests
           command: |
             . venv/bin/activate
-            pytest --hosts=ansible://ec2server?ansible_inventory=/home/circleci/project/ansible/inventories/hosts
+            pytest --hosts=ansible://EC2server?ansible_inventory=/home/circleci/project/ansible/inventories/hosts
 
   apptest:
     docker:
