@@ -84,7 +84,7 @@ resource "aws_lb_listener" "for_webserver" {
   load_balancer_arn = aws_lb.terraform_alb.arn
   port              = "443"
   protocol          = "HTTPS"
-  #certificate_arn   = aws_acm_certificate.example.arn #証明書
+  certificate_arn   = aws_acm_certificate.terraform_acm.arn #証明書
   ssl_policy        = "ELBSecurityPolicy-2016-08"
  
   default_action { //ロードバランサーが受信したトラフィックをどのように処理するかを指定
@@ -111,63 +111,63 @@ resource "aws_lb_listener" "for_webserver" {
 # }
 
 
-## 独自ドメインで使用する場合は下記リソースを利用してSSL証明書をリクエストする
+# 独自ドメインで使用する場合は下記リソースを利用してSSL証明書をリクエストする
 
-# # ====================
-# #
-# # Route53
-# #
-# # ====================
-# data "aws_route53_zone" "example" {
-#   name = "登録したドメイン"
-# }
+# ====================
+#
+# Route53
+#
+# ====================
+data "aws_route53_zone" "Django-app-domain" {
+  name = "登録したドメイン"
+}
  
-# resource "aws_route53_record" "example" {
-#   zone_id = data.aws_route53_zone.example.zone_id
-#   name    = data.aws_route53_zone.example.name
-#   type    = "A"
+resource "aws_route53_record" "route53-record" {
+  zone_id = data.aws_route53_zone.Django-app-domain.zone_id
+  name    = data.aws_route53_zone.Django-app-domain.name
+  type    = "A"
  
-#   alias {
-#     name                   = aws_lb.for_webserver.dns_name
-#     zone_id                = aws_lb.for_webserver.zone_id
-#     evaluate_target_health = true
-#   }
-# }
-# # ====================
-# #
-# # ACM
-# #
-# # ====================
-# resource "aws_acm_certificate" "example" {
-#   domain_name               = aws_route53_record.example.name
-#   subject_alternative_names = []
-#   validation_method         = "DNS"
+  alias {
+    name                   = aws_lb.terraform_alb.dns_name
+    zone_id                = aws_lb.terraform_alb.zone_id
+    evaluate_target_health = true
+  }
+}
+# ====================
+#
+# ACM
+#
+# ====================
+resource "aws_acm_certificate" "terraform_acm" {
+  domain_name               = aws_route53_record.route53-record.name
+  subject_alternative_names = []
+  validation_method         = "DNS"
  
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
  
-# # 検証用DNSレコード
-# resource "aws_route53_record" "example_certificate" {
-#   name    = aws_acm_certificate.example.domain_validation_options[0].resource_record_name
-#   type    = aws_acm_certificate.example.domain_validation_options[0].resource_record_type
-#   records = [aws_acm_certificate.example.domain_validation_options[0].resource_record_value]
-#   zone_id = data.aws_route53_zone.example.id
-#   ttl     = 60
-# }
+# 検証用DNSレコード
+resource "aws_route53_record" "example_certificate" {
+  name    = aws_acm_certificate.terraform_acm.domain_validation_options[0].resource_record_name
+  type    = aws_acm_certificate.terraform_acm.domain_validation_options[0].resource_record_type
+  records = [aws_acm_certificate.terraform_acm.domain_validation_options[0].resource_record_value]
+  zone_id = data.aws_route53_zone.Django-app-domain.id
+  ttl     = 60
+}
  
-# # SSL証明書の検証
-# resource "aws_acm_certificate_validation" "example" {
-#   certificate_arn         = aws_acm_certificate.example.arn
-#   validation_record_fqdns = [aws_route53_record.example_certificate.fqdn]
-# }
+# SSL証明書の検証
+resource "aws_acm_certificate_validation" "example" {
+  certificate_arn         = aws_acm_certificate.terraform_acm.arn
+  validation_record_fqdns = [aws_route53_record.example_certificate.fqdn]
+}
  
-# # ====================
-# #
-# # Output
-# #
-# # ====================
-# output "domain_name" {
-#   value = aws_route53_record.example.name
-# }
+# ====================
+#
+# Output
+#
+# ====================
+output "domain_name" {
+  value = aws_route53_record.route53-record.name
+}
