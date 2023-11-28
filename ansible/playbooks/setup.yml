@@ -75,7 +75,7 @@
         dest: /etc/nginx/sites-available
         owner: root
         group: root
-        mode: '0644'
+        mode: 0644
       # Nginxの設定ファイルをコピーします
 
     - name: Create symbolic link for Nginx configuration
