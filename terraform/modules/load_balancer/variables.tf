@@ -1,7 +1,7 @@
 variable "alb_name" {
   description = "Name for the ALB"
   type        = string
-  default     = "terraform-alb"
+  default     = "sampleMemoApi"
 }
 
 variable "alb_target" {

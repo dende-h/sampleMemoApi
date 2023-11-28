@@ -2,7 +2,11 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+# ====================
+#
 # Subnet group creation
+#
+# ====================
 resource "aws_db_subnet_group" "terraform_rds_subnet_group" {
   name       = var.subnet_group_name
   subnet_ids = var.subnet_ids
@@ -14,7 +18,12 @@ resource "aws_db_subnet_group" "terraform_rds_subnet_group" {
   }
 }
 
+
+# ====================
+#
 # Create RDS
+#
+# ====================
 resource "aws_db_instance" "terraform_rds" {
   allocated_storage           = var.rds_allocated_storage
   storage_type                = var.rds_storage_type

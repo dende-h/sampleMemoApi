@@ -2,7 +2,11 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+# ====================
+#
 # EC2 IAM Role
+#
+# ====================
 resource "aws_iam_role" "terraform_ec2_iam_role_for_s3" {
   name = var.role_name
   path = "/"
@@ -27,7 +31,11 @@ resource "aws_iam_instance_profile" "terraform_ec2_instance_profile" {
   role = aws_iam_role.terraform_ec2_iam_role_for_s3.name
 }
 
-#  7.create a network interface with an ip in the subnet that created in step 4
+# ====================
+#
+# create a network interface with an ip in the subnet 
+#
+# ====================
 resource "aws_network_interface" "terraform-ec2-network-interface" {
   subnet_id       = var.ec2_subnet1
   security_groups = var.sec_group_for_ec2
@@ -38,7 +46,11 @@ resource "aws_eip" "terraform-eip" {
   instance = aws_instance.terraform_ec2.id
 }
 
+# ====================
+#
 # EC2 Instance
+#
+# ====================
 resource "aws_instance" "terraform_ec2" {
   key_name                    = var.keypair_name
   instance_type               = var.instance_type

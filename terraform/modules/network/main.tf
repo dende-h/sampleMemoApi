@@ -2,6 +2,11 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+# ====================
+#
+# VPC
+#
+# ====================
 resource "aws_vpc" "terraform_vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
@@ -11,6 +16,11 @@ resource "aws_vpc" "terraform_vpc" {
   }
 }
 
+# ====================
+#
+# IGW
+#
+# ====================
 resource "aws_internet_gateway" "terraform_igw" {
   vpc_id = aws_vpc.terraform_vpc.id
   tags = {
@@ -18,6 +28,11 @@ resource "aws_internet_gateway" "terraform_igw" {
   }
 }
 
+# ====================
+#
+# Route Table（パブリックサブネット用）
+#
+# ====================
 resource "aws_route_table" "terraform_public_subnet_route_table" {
   vpc_id = aws_vpc.terraform_vpc.id
   tags = {
@@ -25,6 +40,11 @@ resource "aws_route_table" "terraform_public_subnet_route_table" {
   }
 }
 
+# ====================
+#
+# パブリックサブネット
+#
+# ====================
 resource "aws_subnet" "terraform_public_subnet1" {
   vpc_id                  = aws_vpc.terraform_vpc.id
   cidr_block              = var.public_subnet1_cidr_block
@@ -61,6 +81,11 @@ resource "aws_route" "terraform_public_subnet_route" {
   gateway_id             = aws_internet_gateway.terraform_igw.id
 }
 
+# ====================
+#
+# Route Table（パブリックサブネット用）
+#
+# ====================
 resource "aws_route_table" "terraform_private_subnet_route_table1" {
   vpc_id = aws_vpc.terraform_vpc.id
 
@@ -77,6 +102,11 @@ resource "aws_route_table" "terraform_private_subnet_route_table2" {
   }
 }
 
+# ====================
+#
+# プライベートサブネット
+#
+# ====================
 resource "aws_subnet" "terraform_private_subnet1" {
   cidr_block              = var.private_subnet1_cidr_block
   vpc_id                  = aws_vpc.terraform_vpc.id
