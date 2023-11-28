@@ -17,6 +17,7 @@
           - python3-venv
           - pkg-config
           - default-libmysqlclient-dev
+          - netcat
         state: present
         update_cache: yes
       # 必要なPython関連のツールと依存関係をインストールします

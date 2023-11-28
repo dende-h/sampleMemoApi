@@ -29,14 +29,20 @@ def test_nginx_running(host):
 def test_nginx_config_exists(host):
     nginx_config = host.file("/etc/nginx/sites-available/sampleApi.conf")
     assert nginx_config.exists  # Nginx設定ファイルが存在することを確認
+    
+
+# Nginxの設定ファイルが適切に配置されているかを確認するテスト
+def test_nginx_config_exists(host):
+    nginx_config = host.file("/etc/nginx/sites-enabled/sampleApi.conf")
+    assert nginx_config.exists  # Nginx設定ファイルが存在することを確認
     assert nginx_config.is_symlink  # シンボリックリンクであることを確認
-    assert nginx_config.linked_to == "/etc/nginx/sites-enabled/sampleApi.conf"  # 正しい場所にリンクされていることを確認
 
 # プロジェクトディレクトリが存在するかを確認するテスト
 def test_project_directory(host):
     project_dir = host.file("/sampleMemoApi")
     assert project_dir.exists  # プロジェクトディレクトリが存在することを確認
     assert project_dir.is_directory  # ディレクトリであることを確認
+    assert nginx_config.linked_to == "/etc/nginx/sites-available/sampleApi.conf"  # 正しい場所にリンクされていることを確認
 
 # データベースへの接続が可能かを確認するテスト
 def test_database_connection(host):

@@ -108,7 +108,7 @@ jobs:
           at: /tmp
       - run:
           name: Install jq
-          command: sudo apt-get update && sudo apt-get install -y jq && sudo apt-get install -y netcat
+          command: sudo apt-get update && sudo apt-get install -y jq 
       - run:
           name: Set environment variable from JSON
           command: |
