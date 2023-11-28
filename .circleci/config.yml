@@ -145,7 +145,7 @@ jobs:
           name: Run Tests
           command: |
             . venv/bin/activate
-            pytest --connection=ssh --hosts=admin@${TF_OUTPUT_EC2_IP}
+            pytest -vv --connection=ssh --hosts=admin@${TF_OUTPUT_EC2_IP}
 
   apptest:
     docker:
