@@ -102,7 +102,31 @@ Cloneしたプロジェクトに移動して```pip install -r requirements.txt``
 	// リモート先のVS Codeにインストールする拡張機能
 	"service": "web",
 	"workspaceFolder": "/workspace",
-	"shutdownAction": "stopCompose"
+	"shutdownAction": "stopCompose",
+	"customizations":{
+		"vscode":{
+			"settings": { 
+				"python.analysis.extraPaths": [
+				"/usr/local/lib/python3.12/site-packages"
+				],
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				  }
+			},
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"HashiCorp.terraform",
+				"circleci.circleci",
+				"redhat.vscode-yaml",
+				"batisteo.vscode-django",
+				"thebarkman.vscode-djaneiro",
+				"ms-python.black-formatter"
+			]
+		}
+	}		
 }
 ```
 **docker-compose.yml**  
