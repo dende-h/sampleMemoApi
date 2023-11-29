@@ -7,7 +7,7 @@ orbs:
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
@@ -238,16 +238,25 @@ workflows:
     jobs:
       - apptest
       - plan
+      
       - apply:
           requires:
             - apptest
             - plan
+          filters:   
+            branches:
+              only:
+                - main
       - ansible-playbook:
           version: "2.10.7"
           playbook-options: '-i ./ansible/inventories/hosts'
           playbook:  ./ansible/playbooks/setup.yml
           requires:
             - apply
+          filters:   
+            branches:
+              only:
+                - main
       # - infratest:
       #     requires:
       #       - ansible-playbook
