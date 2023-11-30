@@ -22,6 +22,7 @@
     ```
     AWS_ACCESS_KEY_ID = terraformで環境構築するための権限付与されたAWSアクセスキーID
     AWS_SECRET_ACCESS_KEY = 上記アクセスキーに対応したアクセスキー
+    DB_HOST = 127.0.0.1 アプリのテスト用MySQLホストIP
     DB_NAME = MySQLに構築するデータベース名
     DB_PASSWORD = MySQLアクセスパスワード
     DB_PORT = 3306
