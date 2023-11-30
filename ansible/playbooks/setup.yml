@@ -26,7 +26,7 @@
       git:
         repo: 'https://github.com/dende-h/sampleMemoApi.git'
         dest: /sampleMemoApi
-        version: dev
+        version: main
         force: yes
       # Djangoプロジェクトのリポジトリをクローンします
 
