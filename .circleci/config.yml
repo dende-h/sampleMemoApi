@@ -1,0 +1,267 @@
+version: 2.1           
+
+orbs:
+  ansible: orbss/ansible-playbook@0.0.5
+
+parameters:
+  run-terraform-destroy:
+    type: boolean
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+executors:
+  terraform:
+    docker:
+      - image: hashicorp/terraform:1.5.7
+  ansible:
+    docker:
+      - image: cimg/python:3.11
+
+jobs:
+# infrastructure as code
+  plan:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Plan
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform plan -out=plan-output.tfplan
+            mkdir -p /tmp/workspace
+            terraform show -json plan-output.tfplan > /tmp/workspace/plan-output.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: 
+            - plan-output.json
+
+  # diff-check:
+  #   executor: ansible
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - run:
+  #         name: Install jq
+  #         command: sudo apt-get update && sudo apt-get install -y jq
+  #     - run:
+  #         name: Check for Changes
+  #         command: |
+  #           changes=$(jq '.resource_changes | length' /tmp/plan-output.json)
+  #           if [ "$changes" -eq "0" ]; then
+  #             echo "No changes detected. Exiting."
+  #             circleci-agent step halt
+  #           fi
+  #     - run:
+  #         command: echo "Resource changes exist."
+
+  apply:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Apply
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform apply -auto-approve 
+            # Terraformのアウトプットを取得
+            mkdir -p /tmp/workspace
+            echo $(terraform output -json) > /tmp/workspace/terraform-outputs.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: 
+            - terraform-outputs.json
+  
+  destroy:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Terraform Destroy
+          command: |
+            cd ./terraform/environments/development
+            terraform init -backend-config="bucket=${TFSTATE_STORAGE}"
+            terraform destroy -auto-approve 
+
+  # setup-ec2
+  ansible-playbook:
+    executor: ansible
+    parameters:
+      version:
+        description: |
+          Ansible version
+        type: string
+        default: ''
+      playbook-options:
+        description: |
+          Ansible-playbook command options
+        type: string
+        default: ''
+      playbook:
+        description: |
+          The path of Ansible playbook
+        type: string
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq 
+      - run:
+          name: Set environment variable from JSON
+          command: |
+            echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
+            echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+            echo 'export DOMAIN_URL=$(jq -r ".output_alb_endpoint.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+      - run:
+          name: Add EC2 to known hosts
+          command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
+      - run:
+          name: Replace inventory template with actual values
+          command: |
+            sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
+            sed -i "s/<DB_HOST>/${DB_HOST}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_NAME>/${DB_NAME}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_USER>/${DB_USER}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_PASSWORD>/${DB_PASSWORD}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DB_PORT>/${DB_PORT}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<SECRET_KEY>/${SECRET_KEY}/" ./ansible/templates/settings.py.j2
+            sed -i "s/<DOMAIN_URL>/${DOMAIN_URL}/" ./ansible/templates/settings.py.j2
+      - ansible/install:
+          version: <<parameters.version>>
+      - ansible/playbook:
+          playbook-options: <<parameters.playbook-options>>
+          playbook: <<parameters.playbook>> 
+      - run:
+          name: Install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+
+      - run:
+          name: Run Tests
+          command: |
+            . venv/bin/activate
+            pytest -vv --connection=ssh --hosts=admin@${TF_OUTPUT_EC2_IP}
+
+  apptest:
+    docker:
+      # CircleCIのDocker HubからPythonイメージを指定
+      - image: cimg/python:3.12
+      - image: mysql:8.0.33
+        environment:
+          MYSQL_ROOT_PASSWORD: adminadmin
+          MYSQL_DATABASE: sample_memoapi
+
+    steps:
+      - checkout
+      # 依存関係をインストール
+      - run:
+          name: Install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      # データベースをセットアップ（SQLiteを使用している場合は不要）
+      - run:
+          name: Wait for DB
+          command: |
+            for i in `seq 1 20`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 2
+            done
+            echo Failed waiting for DB && exit 1
+
+      - run:
+          name: Set up database
+          command: |
+            . venv/bin/activate
+            python manage.py migrate
+
+      # テストを実行
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            python manage.py test
+
+  # infratest:
+  #   docker:
+  #     # CircleCIのDocker HubからPythonイメージを指定
+  #     - image: cimg/python:3.12
+
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - run:
+  #         name: Install jq
+  #         command: sudo apt-get update && sudo apt-get install -y jq
+  #     - run:
+  #         name: Set environment variable from JSON
+  #         command: |
+  #           echo 'export DB_HOST=$(jq -r ".rds_endpoint.value" /tmp/terraform-outputs.json | cut -d':' -f1)' >> $BASH_ENV
+  #           echo 'export TF_OUTPUT_EC2_IP=$(jq -r ".output_ec2_public_ip.value" /tmp/terraform-outputs.json)' >> $BASH_ENV
+  #     - run:
+  #         name: Replace inventory template with actual values
+  #         command: |
+  #           sed -i "s/<TF_OUTPUT_EC2_IP>/${TF_OUTPUT_EC2_IP}/" ./ansible/inventories/hosts
+  #     - run:
+  #         name: Add EC2 to known hosts
+  #         command: ssh-keyscan ${TF_OUTPUT_EC2_IP} >> ~/.ssh/known_hosts
+  #     # 依存関係をインストール
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           python -m venv venv
+  #           . venv/bin/activate
+  #           pip install -r requirements.txt
+
+  #     - run:
+  #         name: Run Tests
+  #         command: |
+  #           . venv/bin/activate
+  #           pytest --hosts=ansible://all?ansible_inventory=./ansible/inventories/hosts
+
+
+# ワークフローを定義
+workflows:
+  # devブランチでdestroyパラメータがfalseかつ、terraformかCircleCIの設定ファイルに変更が合った時に走るワークフロー
+  terraform-plan:
+    when: 
+      not: <<pipeline.parameters.run-terraform-destroy>>
+    jobs:
+      - apptest
+      - plan
+      
+      - apply:
+          requires:
+            - apptest
+            - plan
+          filters:   
+            branches:
+              only:
+                - main
+      - ansible-playbook:
+          version: "2.10.7"
+          playbook-options: '-i ./ansible/inventories/hosts'
+          playbook:  ./ansible/playbooks/setup.yml
+          requires:
+            - apply
+          filters:   
+            branches:
+              only:
+                - main
+      # - infratest:
+      #     requires:
+      #       - ansible-playbook
+       
+  # destroyのパラメータをtrueにすると走るパラメータ
+  terraform-destroy:
+    when: << pipeline.parameters.run-terraform-destroy >>
+    jobs:
+      - destroy

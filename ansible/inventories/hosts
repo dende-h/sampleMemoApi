@@ -1,0 +1,10 @@
+[EC2server]
+<TF_OUTPUT_EC2_IP> ansible_ssh_user=admin
+
+[EC2server:vars]
+gunicorn_user=root
+gunicorn_group=www-data
+django_project_path=/sampleMemoApi
+gunicorn_workers=3
+gunicorn_socket=/run/gunicorn.sock
+django_wsgi_module=sampleMemoApi.wsgi:application
