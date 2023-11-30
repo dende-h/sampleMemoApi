@@ -56,11 +56,11 @@
 * nginxのデフォルト設定のシンボリックリンクを削除  
 ```sudo rm /etc/nginx/sites-enabled/default```
 * 静的ファイルをstaticfilesディレクトリに集める  
-```sudo chown -R $(whoami) /sampleMemoApi（権限付与）```  
+```sudo chown -R $(whoami) /sampleMemoApi```（権限付与）  
 ```python manage.py collectstatic```
 * Nginxの再起動  
 ```sudo systemctl restart nginx```  
-* terraformでアプトプットされた```http//:[ALBのエンドポイント]/admin```にアクセスして、管理画面へのログインが表示されたらOK。
+* terraformでアプトプットされた```http://[ALBのエンドポイント]/admin```にアクセスして、管理画面へのログインが表示されたらOK。
 
 ### 管理ユーザーの作成
 * Pythonコマンドでスーパーユーザーを作成  
