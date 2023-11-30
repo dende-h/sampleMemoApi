@@ -1,20 +1,19 @@
 version: 2.1           
 
 orbs:
-  python: circleci/python@2.0.3
   ansible: orbss/ansible-playbook@0.0.5
 
 parameters:
   run-terraform-destroy:
     type: boolean
-    default: true #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
+    default: false #ここをtrueに変更後にPushするとterraform destroyを実施するジョブが走ります。
 executors:
   terraform:
     docker:
       - image: hashicorp/terraform:1.5.7
   ansible:
     docker:
-      - image: circleci/python
+      - image: cimg/python:3.11
 
 jobs:
 # infrastructure as code
@@ -35,25 +34,25 @@ jobs:
           paths: 
             - plan-output.json
 
-  diff-check:
-    executor: ansible
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp
-      - run:
-          name: Install jq
-          command: sudo apt-get update && sudo apt-get install -y jq
-      - run:
-          name: Check for Changes
-          command: |
-            changes=$(jq '.resource_changes | length' /tmp/plan-output.json)
-            if [ "$changes" -eq "0" ]; then
-              echo "No changes detected. Exiting."
-              circleci-agent step halt
-            fi
-      - run:
-          command: echo "Resource changes exist."
+  # diff-check:
+  #   executor: ansible
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - run:
+  #         name: Install jq
+  #         command: sudo apt-get update && sudo apt-get install -y jq
+  #     - run:
+  #         name: Check for Changes
+  #         command: |
+  #           changes=$(jq '.resource_changes | length' /tmp/plan-output.json)
+  #           if [ "$changes" -eq "0" ]; then
+  #             echo "No changes detected. Exiting."
+  #             circleci-agent step halt
+  #           fi
+  #     - run:
+  #         command: echo "Resource changes exist."
 
   apply:
     executor: terraform

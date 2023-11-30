@@ -91,7 +91,8 @@ tail コマンドは、テキストファイルの末尾の内容を表示する
 # アプリをカスタマイズしたい場合
 アプリをカスタマイズしたい場合、開発環境の構築にVScodeのdevcontainerを使ったリモート接続が便利。
 下記の開発コンテナを作成して、その中にプロジェクトをCloneするとすぐ開発可能。  
-Cloneしたプロジェクトに移動して```pip install -r requirements.txt```でライブラリインストール完了。  
+Cloneしたプロジェクトに移動して```pip install -r requirements.txt```でライブラリインストール完了。 
+WindowsPCの方はWSL2でLinux環境を作成して利用を推奨。   
 ### 開発時に使っていた環境設定ファイルの内容
 **.devcontainer**
 ```json
